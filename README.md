@@ -1,70 +1,123 @@
-# Getting Started with Create React App
+# ajv-formats
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+JSON Schema formats for Ajv
 
-## Available Scripts
+[![Build Status](https://travis-ci.org/ajv-validator/ajv-formats.svg?branch=master)](https://travis-ci.org/ajv-validator/ajv-formats)
+[![npm](https://img.shields.io/npm/v/ajv-formats.svg)](https://www.npmjs.com/package/ajv-formats)
+[![Gitter](https://img.shields.io/gitter/room/ajv-validator/ajv.svg)](https://gitter.im/ajv-validator/ajv)
+[![GitHub Sponsors](https://img.shields.io/badge/$-sponsors-brightgreen)](https://github.com/sponsors/epoberezkin)
 
-In the project directory, you can run:
+## Usage
 
-### `npm start`
+```javascript
+// ESM/TypeScript import
+import Ajv from "ajv"
+import addFormats from "ajv-formats"
+// Node.js require:
+const Ajv = require("ajv")
+const addFormats = require("ajv-formats")
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+const ajv = new Ajv()
+addFormats(ajv)
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Formats
 
-### `npm test`
+The package defines these formats:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- _date_: full-date according to [RFC3339](http://tools.ietf.org/html/rfc3339#section-5.6).
+- _time_: time with optional time-zone.
+- _date-time_: date-time from the same source (time-zone is mandatory).
+- _duration_: duration from [RFC3339](https://tools.ietf.org/html/rfc3339#appendix-A)
+- _uri_: full URI.
+- _uri-reference_: URI reference, including full and relative URIs.
+- _uri-template_: URI template according to [RFC6570](https://tools.ietf.org/html/rfc6570)
+- _url_ (deprecated): [URL record](https://url.spec.whatwg.org/#concept-url).
+- _email_: email address.
+- _hostname_: host name according to [RFC1034](http://tools.ietf.org/html/rfc1034#section-3.5).
+- _ipv4_: IP address v4.
+- _ipv6_: IP address v6.
+- _regex_: tests whether a string is a valid regular expression by passing it to RegExp constructor.
+- _uuid_: Universally Unique IDentifier according to [RFC4122](http://tools.ietf.org/html/rfc4122).
+- _json-pointer_: JSON-pointer according to [RFC6901](https://tools.ietf.org/html/rfc6901).
+- _relative-json-pointer_: relative JSON-pointer according to [this draft](http://tools.ietf.org/html/draft-luff-relative-json-pointer-00).
+- _byte_: base64 encoded data according to the [openApi 3.0.0 specification](https://spec.openapis.org/oas/v3.0.0#data-types)
+- _int32_: signed 32 bits integer according to the [openApi 3.0.0 specification](https://spec.openapis.org/oas/v3.0.0#data-types)
+- _int64_: signed 64 bits according to the [openApi 3.0.0 specification](https://spec.openapis.org/oas/v3.0.0#data-types)
+- _float_: float according to the [openApi 3.0.0 specification](https://spec.openapis.org/oas/v3.0.0#data-types)
+- _double_: double according to the [openApi 3.0.0 specification](https://spec.openapis.org/oas/v3.0.0#data-types)
+- _password_: password string according to the [openApi 3.0.0 specification](https://spec.openapis.org/oas/v3.0.0#data-types)
+- _binary_: binary string according to the [openApi 3.0.0 specification](https://spec.openapis.org/oas/v3.0.0#data-types)
 
-### `npm run build`
+See regular expressions used for format validation and the sources that were used in [formats.ts](https://github.com/ajv-validator/ajv-formats/blob/master/src/formats.ts).
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+**Please note**: JSON Schema draft-07 also defines formats `iri`, `iri-reference`, `idn-hostname` and `idn-email` for URLs, hostnames and emails with international characters. These formats are available in [ajv-formats-draft2019](https://github.com/luzlab/ajv-formats-draft2019) plugin.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Keywords to compare values: `formatMaximum` / `formatMinimum` and `formatExclusiveMaximum` / `formatExclusiveMinimum`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+These keywords allow to define minimum/maximum constraints when the format keyword defines ordering (`compare` function in format definition).
 
-### `npm run eject`
+These keywords are added to ajv instance when ajv-formats is used without options or with option `keywords: true`.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+These keywords apply only to strings. If the data is not a string, the validation succeeds.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+The value of keywords `formatMaximum`/`formatMinimum` and `formatExclusiveMaximum`/`formatExclusiveMinimum` should be a string or [\$data reference](https://github.com/ajv-validator/ajv/blob/master/docs/validation.md#data-reference). This value is the maximum (minimum) allowed value for the data to be valid as determined by `format` keyword. If `format` keyword is not present schema compilation will throw exception.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+When these keyword are added, they also add comparison functions to formats `"date"`, `"time"` and `"date-time"`. User-defined formats also can have comparison functions. See [addFormat](https://github.com/ajv-validator/ajv/blob/master/docs/api.md#api-addformat) method.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```javascript
+require("ajv-formats")(ajv)
 
-## Learn More
+const schema = {
+  type: "string",
+  format: "date",
+  formatMinimum: "2016-02-06",
+  formatExclusiveMaximum: "2016-12-27",
+}
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+const validDataList = ["2016-02-06", "2016-12-26"]
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+const invalidDataList = ["2016-02-05", "2016-12-27", "abc"]
+```
 
-### Code Splitting
+## Options
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Options can be passed via the second parameter. Options value can be
 
-### Analyzing the Bundle Size
+1. The list of format names that will be added to ajv instance:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```javascript
+addFormats(ajv, ["date", "time"])
+```
 
-### Making a Progressive Web App
+**Please note**: when ajv encounters an undefined format it throws exception (unless ajv instance was configured with `strict: false` option). To allow specific undefined formats they have to be passed to ajv instance via `formats` option with `true` value:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```javascript
+const ajv = new Ajv((formats: {date: true, time: true})) // to ignore "date" and "time" formats in schemas.
+```
 
-### Advanced Configuration
+2. Format validation mode (default is `"full"`) with optional list of format names and `keywords` option to add additional format comparison keywords:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```javascript
+addFormats(ajv, {mode: "fast"})
+```
 
-### Deployment
+or
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+```javascript
+addFormats(ajv, {mode: "fast", formats: ["date", "time"], keywords: true})
+```
 
-### `npm run build` fails to minify
+In `"fast"` mode the following formats are simplified: `"date"`, `"time"`, `"date-time"`, `"uri"`, `"uri-reference"`, `"email"`. For example `"date"`, `"time"` and `"date-time"` do not validate ranges in `"fast"` mode, only string structure, and other formats have simplified regular expressions.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Tests
+
+```bash
+npm install
+git submodule update --init
+npm test
+```
+
+## License
+
+[MIT](https://github.com/ajv-validator/ajv-formats/blob/master/LICENSE)
