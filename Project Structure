@@ -1,0 +1,21 @@
+computer-repair-platform/
+│
+├── backend/                 # Backend API and database
+│   ├── app.js               # Express server
+│   ├── routes/              # API routes (e.g., tutorials, videos)
+│   ├── models/              # Database models (e.g., User, Tutorial)
+│   └── controllers/         # Logic to process requests
+│
+├── frontend/                # React or Vue frontend
+│   ├── public/              # Static files (images, videos)
+│   ├── src/
+│   │   ├── components/      # UI Components (Tutorial, VideoPlayer)
+│   │   ├── pages/           # Pages (Home, Tutorials, Forums)
+│   │   ├── App.js           # Main app component
+│   │   └── index.js         # Entry point
+│   └── package.json         # Frontend dependencies
+│
+├── mobile-app/              # Optional native app (e.g., React Native)
+│
+├── README.md
+└── package.json             # Combined dependencies (if using mono repo)

@@ -1,1 +1,2 @@
-# computer-hardware
+# computer-laptop-hardware
+education learning

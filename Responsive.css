@@ -1,0 +1,17 @@
+.tutorial-card {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 10px;
+  box-shadow: 0 0 5px #ccc;
+}
+
+img, video {
+  width: 100%;
+  height: auto;
+}
+
+@media only screen and (max-width: 600px) {
+  .tutorial-card {
+    padding: 5px;
+  }
+}
